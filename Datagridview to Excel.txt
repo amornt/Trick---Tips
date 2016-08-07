@@ -1,0 +1,44 @@
+ Private Sub ExportExcel(ByVal dgv As DataGridView, ByVal filePath As String)
+        Dim fs As New IO.StreamWriter(filePath, False)
+
+        fs.WriteLine("<?xml version=""1.0""?>")
+        fs.WriteLine("<?mso-application progid=""Excel.Sheet""?>")
+        fs.WriteLine("<ss:Workbook xmlns:ss=""urn:schemas-microsoft-com:office:spreadsheet"">")
+        fs.WriteLine("    <ss:Styles>")
+        fs.WriteLine("        <ss:Style ss:ID=""1"">")
+        fs.WriteLine("           <ss:Font ss:Bold=""1""/>")
+        fs.WriteLine("        </ss:Style>")
+        fs.WriteLine("    </ss:Styles>")
+        fs.WriteLine("    <ss:Worksheet ss:Name=""Sheet1"">")
+        fs.WriteLine("        <ss:Table>")
+
+        For x As Integer = 0 To DGV.Columns.Count - 1
+            fs.WriteLine("            <ss:Column ss:Width=""{0}""/>", DGV.Columns.Item(x).Width)
+        Next
+
+        fs.WriteLine("            <ss:Row ss:StyleID=""1"">")
+
+        For i As Integer = 0 To DGV.Columns.Count - 1
+            fs.WriteLine("                <ss:Cell>")
+            fs.WriteLine(String.Format("                   <ss:Data ss:Type=""String"">{0}</ss:Data>", DGV.Columns.Item(i).HeaderText))
+            fs.WriteLine("                </ss:Cell>")
+        Next
+
+        fs.WriteLine("            </ss:Row>")
+
+        For intRow As Integer = 0 To dgv.RowCount - 1
+            fs.WriteLine(String.Format("            <ss:Row ss:Height =""{0}"">", dgv.Rows(intRow).Height))
+            For intCol As Integer = 0 To dgv.Columns.Count - 1
+                fs.WriteLine("                <ss:Cell>")
+                fs.WriteLine(String.Format("                   <ss:Data ss:Type=""String"">{0}</ss:Data>", dgv.Item(intCol, intRow).Value.ToString))
+                fs.WriteLine("                </ss:Cell>")
+            Next
+            fs.WriteLine("            </ss:Row>")
+        Next
+
+        fs.WriteLine("        </ss:Table>")
+        fs.WriteLine("    </ss:Worksheet>")
+        fs.WriteLine("</ss:Workbook>")
+
+        fs.Close()
+    End Sub

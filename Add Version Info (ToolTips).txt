@@ -1,0 +1,3 @@
+ Private TipVers As New ToolTip With {.IsBalloon = False, .ToolTipIcon = ToolTipIcon.Info, .ToolTipTitle = "Library info"} 
+Try : TipVers.SetToolTip(lblTitle, FileVersionInfo.GetVersionInfo(My.Application.Info.DirectoryPath & "\Modules\" & System.Reflection.Assembly.GetExecutingAssembly.GetName.Name() & ".dll").FileVersion)
+        Catch ex As Exception : End Try

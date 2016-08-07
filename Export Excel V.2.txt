@@ -1,0 +1,61 @@
+Shared Sub ExportExcel(ByVal obj As List(Of DataGridView), ByVal filePath As String)
+            Dim fs As New IO.StreamWriter(filePath, False)
+
+            fs.WriteLine("<?xml version=""1.0""?>")
+            fs.WriteLine("<?mso-application progid=""Excel.Sheet""?>")
+            fs.WriteLine("<ss:Workbook xmlns:ss=""urn:schemas-microsoft-com:office:spreadsheet"">")
+            fs.WriteLine("    <ss:Styles>")
+            fs.WriteLine("        <ss:Style ss:ID=""1"">")
+            fs.WriteLine("           <ss:Font ss:Bold=""1""/>")
+            fs.WriteLine("        </ss:Style>")
+            fs.WriteLine("    </ss:Styles>")
+
+            'Loop in more table
+            For Each dgv As DataGridView In obj
+                fs.WriteLine("    <ss:Worksheet ss:Name=""" & dgv.Name & """>")
+                fs.WriteLine("        <ss:Table>")
+
+                For x As Integer = 0 To dgv.Columns.Count - 1
+                    If dgv.Columns(x).Visible = False Then Continue For
+                    fs.WriteLine("            <ss:Column ss:Width=""{0}""/>", dgv.Columns.Item(x).Width)
+                Next
+
+                fs.WriteLine("            <ss:Row ss:StyleID=""1"">")
+
+                For i As Integer = 0 To dgv.Columns.Count - 1
+                    If dgv.Columns(i).Visible = False Then Continue For
+                    fs.WriteLine("                <ss:Cell>")
+                    fs.WriteLine(String.Format("                   <ss:Data ss:Type=""String"">{0}</ss:Data>", dgv.Columns.Item(i).HeaderText))
+                    fs.WriteLine("                </ss:Cell>")
+                Next
+
+                fs.WriteLine("            </ss:Row>")
+
+                For intRow As Integer = 0 To dgv.RowCount - 1
+                    fs.WriteLine(String.Format("            <ss:Row ss:Height =""{0}"">", dgv.Rows(intRow).Height))
+                    For intCol As Integer = 0 To dgv.Columns.Count - 1
+                        If dgv.Columns(intCol).Visible = False Then Continue For
+                        fs.WriteLine("                <ss:Cell>")
+                        fs.WriteLine(String.Format("                   <ss:Data ss:Type=""" & ConvertXmlDataType(dgv.Rows(0).Cells(intCol).ValueType) & """>{0}</ss:Data>", dgv.Item(intCol, intRow).Value))
+                        fs.WriteLine("                </ss:Cell>")
+                    Next
+                    fs.WriteLine("            </ss:Row>")
+                Next
+
+                fs.WriteLine("        </ss:Table>")
+                fs.WriteLine("    </ss:Worksheet>")
+            Next
+            fs.WriteLine("</ss:Workbook>")
+
+            fs.Close()
+        End Sub
+        Private Shared Function ConvertXmlDataType(ByVal inpType As Type) As String
+            Select Case inpType
+                Case GetType(Int32), GetType(Int64), GetType(Double)
+                    Return "Number"
+                Case GetType(Date), GetType(DateTime)
+                    Return "String"
+                Case Else
+                    Return "String"
+            End Select
+        End Function
